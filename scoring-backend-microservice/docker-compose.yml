@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: userdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    restart: always
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    volumes:
+      - ./user-service:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:root@postgres:5432/userdb
+    command: npm run start:dev
+
+# 🚨 volumes phải nằm ngang hàng với `services`
+volumes:
+  pgdata:
